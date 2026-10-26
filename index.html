@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Caio Gomes — Engenheiro de Software</title>
+  <meta name="description" content="Caio Gomes — engenheiro de software em Belo Horizonte. Processos, integrações e automações na LEVTY; Ciência da Computação na PUC Minas." />
+  <meta property="og:title" content="Caio Gomes — Engenheiro de Software" />
+  <meta property="og:description" content="Processos, integrações e automações na LEVTY; Ciência da Computação na PUC Minas." />
+  <meta property="og:image" content="images/caio.jpg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
+  <script>
+    try { document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark"; }
+    catch (e) { document.documentElement.dataset.theme = "dark"; }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="pond" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <nav id="nav" aria-label="Seções"></nav>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Alternar tema"></button>
+  </header>
+
+  <div class="counter" aria-label="Estatísticas do lago">
+    <div class="counter-row">
+      <button id="koi-minus" type="button" aria-label="Tirar uma carpa do lago" title="tirar uma carpa">−</button>
+      <span id="koi-count" aria-live="polite">0</span>
+      <button id="koi-plus" type="button" aria-label="Soltar mais uma carpa no lago" title="soltar mais uma carpa">+</button>
+      <span class="counter-label">carpas</span>
+    </div>
+    <div class="counter-row" title="grãos de ração que as carpas já comeram">
+      <span class="counter-spacer" aria-hidden="true"></span>
+      <span id="koi-fed">0</span>
+      <span class="counter-spacer" aria-hidden="true"></span>
+      <span class="counter-label">comidas</span>
+    </div>
+  </div>
+
+  <main id="content">
+    <section id="top" class="hero">
+      <div class="hero-inner" data-koi-avoid>
+        <p class="tagline" id="tagline" aria-live="polite"></p>
+        <div class="hero-body" id="hero-body"></div>
+      </div>
+      <a class="scroll-hint" href="#sections">↓ role</a>
+    </section>
+    <div id="sections"></div>
+  </main>
+
+  <footer class="footer" id="footer"></footer>
+
+  <script src="config.js"></script>
+  <script src="pond.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

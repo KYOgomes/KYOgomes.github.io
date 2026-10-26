@@ -1,0 +1,6 @@
+01-calendario.jpg | Tela inicial: calendário do mês com vendidos/disponíveis por dia e ícone indicando se todos os pedidos do dia foram pagos
+02-resumo-financeiro.jpg | Resumo financeiro do mês: lucro, margem, vendas, despesas, valores a receber e gráfico de vendas por dia
+03-pedidos-do-dia.jpg | Lançamento rápido de pedidos e lista do dia; pedidos pagos ficam esmaecidos com um toque na caixinha
+04-sabores-mais-pedidos.jpg | Ranking dos sabores mais pedidos no período e lista de pedidos ainda não pagos
+05-resumo-desktop.jpg | Versão desktop do resumo financeiro com seletor de período (hoje, semana, mês e total)
+06-qr-code-pix.jpg | QR code Pix gerado pelo próprio app (padrão do Banco Central) para receber pagamentos na hora

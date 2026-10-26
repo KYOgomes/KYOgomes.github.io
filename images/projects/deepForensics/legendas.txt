@@ -1,0 +1,5 @@
+01-analise-score-desktop.jpg | Resultado da análise de uma imagem: score final de 0 a 100 com classificação "Alta chance de manipulação", peso de cada algoritmo (Vanishing Points, ELA, Ruído, Escala) e detecção de linhas de fuga
+02-mapas-forenses-desktop.jpg | Mapas forenses gerados pelo pipeline: Error Level Analysis, mapa de inconsistência regional, extração de ruído e objetos detectados para checagem de escala
+03-analise-em-lote-desktop.jpg | Análise em lote de 12 imagens do dataset CASIA processadas em paralelo, com KPIs, distribuição por nível de confiança e score de cada imagem
+04-benchmark-paralelo-desktop.jpg | Benchmark de computação paralela com multiprocessing: speedup x lei de Amdahl, eficiência (escalabilidade forte e fraca), tempo por configuração e overhead
+05-tela-inicial-desktop.jpg | Tela inicial do DeepForensics, com upload de imagem única ou em lote e indicador de backend online
