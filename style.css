@@ -344,7 +344,7 @@ html.d-lock body { padding-right: var(--scrollbar, 0px); }
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
   transform-origin: 0 0; /* necessário para a animação FLIP */
 }
-.d-scroll { overflow: auto; overscroll-behavior: contain; padding: 40px 44px 44px; }
+.d-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; padding: 40px 44px 44px; }
 .d-close {
   position: absolute;
   top: 12px; right: 12px;
@@ -456,7 +456,7 @@ html.d-lock body { padding-right: var(--scrollbar, 0px); }
 
 @media (max-width: 640px) {
   .d-overlay { padding: 0; }
-  .d-panel { width: 100%; height: 100%; max-height: none; border: 0; }
+  .d-panel { width: 100%; height: 100vh; height: 100dvh; max-height: none; border: 0; }
   .d-scroll { padding: 56px 18px 32px; }
   .bar-row { grid-template-columns: 1fr 52px; gap: 4px 10px; }
   .bar-label { grid-column: 1 / -1; }
