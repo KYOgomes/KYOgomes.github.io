@@ -52,8 +52,8 @@ window.PORTFOLIO = {
 
   about: [
     "Sou desenvolvedor de software em Belo Horizonte e estou concluindo **Ciência da Computação na PUC Minas**. Na [LEVTY](https://www.levty.com/br), trabalho com a plataforma **SYDLE ONE**: modelo processos em BPMN, escrevo regras de negócio e automações em JavaScript e integro sistemas externos por APIs REST.",
-    "Gosto do trabalho que fica entre o código e as pessoas. Converso direto com clientes para entender o problema, levantar requisitos e validar cada entrega, e lido com grandes volumes de dados — de importações com validações customizadas a consultas no **Elasticsearch** que alimentam dashboards.",
-    "Na faculdade, fui fundo em computação paralela e distribuída, arquitetura de computadores, compiladores e visão computacional. Antes da tecnologia, passei pela contabilidade, e isso me deixou um olhar atento para processos e para o negócio por trás de cada sistema. Falo inglês em nível avançado.",
+    "Gosto do trabalho que fica entre o código e as pessoas. Converso direto com clientes para entender o problema, levantar requisitos e validar cada entrega, lido com grandes volumes de dados, sendo de importações com validações customizadas a consultas no **Elasticsearch** que alimentam dashboards.",
+    "Na faculdade, me aprofundo em computação paralela e distribuída, arquitetura de computadores, Processamento e Análise de Imagens (PAI) e Visão Computacional. Antes da tecnologia, passei pela contabilidade, e isso me deixou um olhar atento para processos e para o negócio por trás de cada sistema. Falo inglês em nível avançado.",
   ],
 
   // `highlights` vira uma lista de tópicos; `description` é a linha curta abaixo do cargo
@@ -151,7 +151,7 @@ window.PORTFOLIO = {
     },
     {
       name: "angra-photos",
-      description: "Álbum compartilhado de uma viagem: todos enviam fotos e vídeos em qualidade original e o site organiza tudo pela data em que foram tirados — feito para uma turma com mais de 60 anos.",
+      description: "Álbum compartilhado de uma viagem: todos enviam fotos e vídeos em qualidade original e o site organiza tudo pela data em que foram tirados — feito para facilitar a organização das fotos de uma viagem da família.",
       tags: ["React", "TypeScript", "Cloudflare Workers", "R2 · D1"],
       links: { demo: "", code: "https://github.com/KYOgomes/angra-photos" },
       details: {
