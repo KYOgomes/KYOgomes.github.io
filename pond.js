@@ -152,7 +152,7 @@
       const head = this.pts[0];
       const fx = Math.cos(this.angle), fy = Math.sin(this.angle);
       let sx = fx, sy = fy; // inércia: continuar em frente
-      let maxTurn = 0.55, speedMul = 1, urgent = false, tight = 0.45;
+      let maxTurn = 0.55, speedMul = 1, urgent = false, feeding = false, tight = 0.45;
 
       // Wander: um ponto num círculo à frente da carpa passeia aos poucos (ruído suave, não aleatório puro)
       this.wanderTheta += (noise(time * 0.18, 0.5, this.seed) - 0.5) * 2.4 * dt;
@@ -192,16 +192,17 @@
 
       if (!this.target || !pellets.includes(this.target)) {
         this.target = nearestPellet(head.x, head.y, Math.max(W, H) * 0.45);
-        if (this.target) this.reactAt = Math.max(this.reactAt, time + rand(0.15, 0.5));
+        if (this.target) this.reactAt = Math.max(this.reactAt, time + rand(0.05, 0.3));
       }
       if (this.target && this.target.landed && time >= this.reactAt) {
         const dx = this.target.x - head.x, dy = this.target.y - head.y;
         const d = Math.hypot(dx, dy) || 1;
         sx += (dx / d) * 2.2; sy += (dy / d) * 2.2;
         // Arrive (Reynolds): dispara de longe e freia perto para não ficar rodeando o grão
-        const arrive = clamp(d / (CELL * 13), 0.3, 1); // freia mais cedo, porque agora chega mais rápido
-        maxTurn = 1.4 + (1 - arrive) * 1.8;
-        speedMul = 5.5 * arrive + 0.4; // arrancada: sai do passeio lento e dispara até o grão
+        const arrive = clamp(d / (CELL * 16), 0.25, 1); // freia mais cedo, porque chega muito rápido
+        maxTurn = 1.8 + (1 - arrive) * 2.2;
+        speedMul = 8 * arrive + 0.5; // disparada: sai do passeio lento e corre até o grão
+        feeding = true;
         urgent = true;
         if (d < this.len * 0.8) tight = 0.18; // perto do grão pode fazer a curva fechada para abocanhar
         if (d < this.maxW + CELL * 0.8) {
@@ -235,7 +236,8 @@
       const targetTurn = clamp(angleDiff(Math.atan2(sy, sx), this.angle) * 1.6, -cap, cap);
       this.turnRate += (targetTurn - this.turnRate) * Math.min(1, dt * (urgent ? 2.2 : 1.4));
       this.angle += this.turnRate * dt;
-      this.speed += (this.baseSpeed * speedMul - this.speed) * Math.min(1, dt * (urgent ? 3 : 0.7));
+      // Arrancada forte só atrás de ração; fugir do mouse e passear seguem como antes
+      this.speed += (this.baseSpeed * speedMul - this.speed) * Math.min(1, dt * (feeding ? 4.5 : urgent ? 1.8 : 0.7));
       const swim = this.speed / this.baseSpeed;
       this.tailPhase += dt * (1.3 + 0.9 * Math.min(swim, 2));
 
@@ -569,7 +571,7 @@
             if (d > range) continue;
             const cur = f.target && pellets.includes(f.target) ? Math.hypot(f.pts[0].x - f.target.x, f.pts[0].y - f.target.y) : Infinity;
             if (d < cur) {
-              if (cur === Infinity) f.reactAt = time + rand(0.1, 0.45); // cada uma percebe num momento diferente
+              if (cur === Infinity) f.reactAt = time + rand(0.05, 0.3); // cada uma percebe num momento diferente
               f.target = p;
             }
           }
