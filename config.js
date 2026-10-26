@@ -29,6 +29,13 @@ window.PORTFOLIO = {
     { label: "email", url: "mailto:caioga2011@gmail.com" },
   ],
 
+  // Currículo em PDF: aparece no topo (junto dos links) e no contato.
+  // Para trocar, substitua o arquivo; para tirar, apague este bloco.
+  resume: {
+    file: "CaioGomesAlcantara_Curriculo.pdf",
+    label: "currículo (pdf) ↓",
+  },
+
   // Foto exibida na seção "sobre" (para tirar, apague este bloco)
   photo: {
     src: "images/caio.jpg",
