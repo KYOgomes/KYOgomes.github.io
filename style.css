@@ -112,7 +112,7 @@ a:hover { color: var(--accent); border-color: var(--accent); }
   #nav a:hover .wave > span, #nav a:focus-visible .wave > span { animation: none; }
 }
 
-.theme-toggle, .counter button {
+.theme-toggle, .counter button, .lang-toggle {
   background: none;
   border: 0;
   color: var(--muted);
@@ -127,6 +127,32 @@ a:hover { color: var(--accent); border-color: var(--accent); }
 ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 .theme-switching body, .theme-switching body * { transition: none !important; }
 .theme-toggle:hover { color: var(--fg); }
+
+/* Idioma: "pt / en" no canto superior esquerdo; o idioma atual fica aceso */
+.lang-toggle {
+  position: fixed;
+  top: 30px;
+  left: clamp(16px, 8vw, 160px);
+  z-index: 11;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  border: 1px dashed var(--line);
+  transition: border-color 0.25s, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.lang-toggle span { color: var(--dim); transition: color 0.3s; }
+.lang-toggle span.on { color: var(--accent); }
+.lang-toggle .sep { color: var(--line); }
+.lang-toggle:hover, .lang-toggle:focus-visible { border-color: var(--accent); transform: scale(1.08); }
+.lang-toggle:hover span:not(.on):not(.sep) { color: var(--fg); }
+.lang-toggle:active { transform: scale(0.95); }
+
+/* Some e volta ao trocar de idioma */
+main, .footer { transition: opacity 0.22s ease, filter 0.22s ease; }
+.lang-out { opacity: 0; filter: blur(3px); }
 
 .counter {
   position: fixed;
@@ -501,7 +527,9 @@ html.d-lock body { padding-right: var(--scrollbar, 0px); }
   .topbar { padding-top: 18px; justify-content: flex-start; }
   #nav { justify-content: flex-start; gap: 4px 18px; }
   #nav a { font-size: 13px; }
-  .theme-toggle { margin-left: auto; }
+  #nav { flex: 1 1 auto; min-width: 0; }
+  .topbar .lang-toggle { margin-left: 10px; padding: 3px 6px; flex-shrink: 0; align-self: flex-start; }
+  .topbar .theme-toggle { margin-left: 6px; flex-shrink: 0; align-self: flex-start; }
   .hero-body { font-size: 15px; }
   .timeline > li, .skills div { grid-template-columns: 1fr; gap: 2px; }
   .about.has-photo { grid-template-columns: 1fr; gap: 24px; }
@@ -510,6 +538,8 @@ html.d-lock body { padding-right: var(--scrollbar, 0px); }
 /* ── zoom e telas intermediárias ────────────────────────────────── */
 /* Sem espaço ao lado do menu (zoom ampliado, janelas estreitas): o contador vira um widget no canto de baixo */
 @media (max-width: 1180px) {
+  .lang-toggle { position: static; order: 2; margin-left: 20px; }
+  .theme-toggle { order: 3; }
   .counter {
     top: auto;
     bottom: 16px;

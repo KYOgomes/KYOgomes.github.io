@@ -2,7 +2,64 @@
 (() => {
   "use strict";
 
-  const C = window.PORTFOLIO;
+  // ── idioma ─────────────────────────────────────────────────────
+  // Os textos em inglês ficam em config.en.js e são combinados com o config.js:
+  // objetos se mesclam, listas de objetos se casam pela posição, o resto é substituído.
+  const merge = (base, over, key) => {
+    if (over === undefined) return base;
+    if (key === "skills") return over;
+    if (Array.isArray(base) && Array.isArray(over) && base.every((x) => x && typeof x === "object" && !Array.isArray(x)))
+      return base.map((x, i) => merge(x, over[i]));
+    if (base && over && typeof base === "object" && typeof over === "object" && !Array.isArray(base) && !Array.isArray(over)) {
+      const out = { ...base };
+      for (const k of Object.keys(over)) out[k] = merge(base[k], over[k], k);
+      return out;
+    }
+    return over;
+  };
+  const CONTENT = { pt: window.PORTFOLIO, en: window.PORTFOLIO_EN ? merge(window.PORTFOLIO, window.PORTFOLIO_EN) : null };
+
+  // Textos da interface (botões, dicas, rótulos do contador)
+  const UI = {
+    pt: {
+      locale: "pt-BR",
+      title: "Caio Gomes — Engenheiro de Software",
+      description: "Caio Gomes — engenheiro de software em Belo Horizonte. Processos, integrações e automações na LEVTY; Ciência da Computação na PUC Minas.",
+      demo: "demo ↗", code: "código ↗", site: "ver o site ↗", repo: "ver o código ↗",
+      details: "Ver detalhes de", courses: "certificados & cursos", screens: "telas", kicker: "projeto",
+      close: "Fechar detalhes", enlarge: "Ampliar", back: "clique ou Esc para voltar",
+      toDark: "Mudar para o tema escuro", toLight: "Mudar para o tema claro",
+      langSwitch: "Read in English", nav: "Seções", scroll: "↓ role",
+      stats: "Estatísticas do lago", fish: "carpas", fed: "comidas", fedHint: "grãos de ração que as carpas já comeram",
+      minus: "Tirar uma carpa do lago", minusHint: "tirar uma carpa",
+      plus: "Soltar mais uma carpa no lago", plusHint: "soltar mais uma carpa",
+    },
+    en: {
+      locale: "en-US",
+      title: "Caio Gomes — Software Engineer",
+      description: "Caio Gomes — software engineer in Belo Horizonte, Brazil. Processes, integrations and automations at LEVTY; Computer Science at PUC Minas.",
+      demo: "demo ↗", code: "code ↗", site: "visit the site ↗", repo: "view the code ↗",
+      details: "See details of", courses: "certificates & courses", screens: "screens", kicker: "project",
+      close: "Close details", enlarge: "Enlarge", back: "click or press Esc to go back",
+      toDark: "Switch to dark theme", toLight: "Switch to light theme",
+      langSwitch: "Ler em português", nav: "Sections", scroll: "↓ scroll",
+      stats: "Pond stats", fish: "koi", fed: "eaten", fedHint: "food pellets the koi have eaten",
+      minus: "Remove a koi from the pond", minusHint: "remove a koi",
+      plus: "Release one more koi into the pond", plusHint: "add a koi",
+    },
+  };
+
+  // Ordem de escolha: o que a pessoa escolheu antes > ?lang=en > idioma do navegador
+  let lang = (() => {
+    let saved = null;
+    try { saved = localStorage.getItem("lang"); } catch (e) {}
+    const param = new URLSearchParams(location.search).get("lang");
+    const pick = saved || param || (/^pt\b/i.test(navigator.language || "pt") ? "pt" : "en");
+    return pick === "en" && CONTENT.en ? "en" : "pt";
+  })();
+  let C = CONTENT[lang];
+  let T = UI[lang];
+
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const $ = (s) => document.querySelector(s);
 
@@ -50,9 +107,9 @@
     projects: () =>
       `<div class="projects">${C.projects
         .map((p, i) => {
-          const links = [p.links?.demo && link(p.links.demo, "demo ↗"), p.links?.code && link(p.links.code, "código ↗")].filter(Boolean);
+          const links = [p.links?.demo && link(p.links.demo, T.demo), p.links?.code && link(p.links.code, T.code)].filter(Boolean);
           const expand = p.details
-            ? `<button class="expand" type="button" data-project="${i}" aria-label="Ver detalhes de ${esc(p.name)}" aria-haspopup="dialog">${ICON_EXPAND}</button>`
+            ? `<button class="expand" type="button" data-project="${i}" aria-label="${T.details} ${esc(p.name)}" aria-haspopup="dialog">${ICON_EXPAND}</button>`
             : "";
           return `<article class="project reveal${p.details ? " has-details" : ""}" style="--d:${i * 0.1}s" data-project="${i}" data-koi-ignore>
             <h3>${esc(p.name)}</h3>
@@ -80,7 +137,7 @@
         )
         .join("");
       const courses = E.courses && E.courses.length
-        ? `<h3 class="subhead reveal">certificados & cursos</h3><ul class="courses">${E.courses.map((c, i) => `<li class="reveal" style="--d:${i * 0.08}s">${md(c)}</li>`).join("")}</ul>`
+        ? `<h3 class="subhead reveal">${T.courses}</h3><ul class="courses">${E.courses.map((c, i) => `<li class="reveal" style="--d:${i * 0.08}s">${md(c)}</li>`).join("")}</ul>`
         : "";
       return `<ul class="timeline">${items}</ul>${courses}`;
     },
@@ -108,32 +165,49 @@
 
   // ── montagem ────────────────────────────────────────────────────
   const ids = { about: "sobre", experience: "experiencia", projects: "projetos", education: "formacao", skills: "stack", contact: "contato" };
-  const sections = C.sections.filter((s) => RENDER[s]);
 
   // Cada letra vira um <span> para a "ondinha" do hover passar letra por letra
   const navItem = (id, label) =>
     `<a href="#${id}" data-target="${id}" aria-label="${esc(label)}"><span class="wave" aria-hidden="true">${[...label]
       .map((ch, i) => `<span style="--i:${i}">${ch === " " ? "&nbsp;" : esc(ch)}</span>`)
       .join("")}</span></a>`;
-  $("#nav").innerHTML = navItem("top", C.labels.top) + sections.map((s) => navItem(ids[s], C.labels[s] || s)).join("");
 
-  $("#sections").innerHTML = sections
-    .map(
-      (s, i) => `<section class="section" id="${ids[s]}">
-        <div class="section-inner" data-koi-avoid>
-          <h2 class="section-title reveal"><span class="idx">${String(i + 1).padStart(2, "0")}</span><span class="scramble">${esc(C.labels[s] || s)}</span></h2>
-          ${RENDER[s]()}
-        </div>
-      </section>`
-    )
-    .join("");
+  // Textos fixos do index.html: data-i18n (texto), data-i18n-aria e data-i18n-title
+  function translateStatic() {
+    const root = document.documentElement;
+    root.lang = T.locale;
+    document.title = T.title;
+    const meta = $('meta[name="description"]');
+    if (meta) meta.content = T.description;
+    document.querySelectorAll("[data-i18n]").forEach((el) => (el.textContent = T[el.dataset.i18n]));
+    document.querySelectorAll("[data-i18n-aria]").forEach((el) => el.setAttribute("aria-label", T[el.dataset.i18nAria]));
+    document.querySelectorAll("[data-i18n-title]").forEach((el) => (el.title = T[el.dataset.i18nTitle]));
+  }
 
-  $("#hero-body").innerHTML =
-    `<p class="reveal">${md(C.greeting)}</p>` +
-    C.intro.map((l, i) => `<p class="reveal" style="--d:${0.15 + i * 0.15}s">${md(l)}</p>`).join("") +
-    `<p class="socials reveal" style="--d:${0.15 + C.intro.length * 0.15}s">${socials()}</p>`;
+  function render() {
+    const sections = C.sections.filter((s) => RENDER[s]);
+    $("#nav").innerHTML = navItem("top", C.labels.top) + sections.map((s) => navItem(ids[s], C.labels[s] || s)).join("");
 
-  $("#footer").innerHTML = `<p>© ${new Date().getFullYear()} ${esc(C.name)} · ${esc(C.footer || "")}</p>`;
+    $("#sections").innerHTML = sections
+      .map(
+        (s, i) => `<section class="section" id="${ids[s]}">
+          <div class="section-inner" data-koi-avoid>
+            <h2 class="section-title reveal"><span class="idx">${String(i + 1).padStart(2, "0")}</span><span class="scramble">${esc(C.labels[s] || s)}</span></h2>
+            ${RENDER[s]()}
+          </div>
+        </section>`
+      )
+      .join("");
+
+    $("#hero-body").innerHTML =
+      `<p class="reveal">${md(C.greeting)}</p>` +
+      C.intro.map((l, i) => `<p class="reveal" style="--d:${0.15 + i * 0.15}s">${md(l)}</p>`).join("") +
+      `<p class="socials reveal" style="--d:${0.15 + C.intro.length * 0.15}s">${socials()}</p>`;
+
+    $("#footer").innerHTML = `<p>© ${new Date().getFullYear()} ${esc(C.name)} · ${esc(C.footer || "")}</p>`;
+    translateStatic();
+  }
+  render();
 
   // ── painel de detalhes dos projetos ────────────────────────────
   /* Abre por cima da página (não é outra página). A abertura usa FLIP: o painel
@@ -144,7 +218,7 @@
 
   function detailsHTML(p) {
     const d = p.details;
-    const links = [p.links?.demo && link(p.links.demo, "ver o site ↗"), p.links?.code && link(p.links.code, "ver o código ↗")].filter(Boolean);
+    const links = [p.links?.demo && link(p.links.demo, T.site), p.links?.code && link(p.links.code, T.repo)].filter(Boolean);
     const facts = d.facts && d.facts.length
       ? `<dl class="facts">${d.facts.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${md(v)}</dd></div>`).join("")}</dl>`
       : "";
@@ -157,7 +231,7 @@
               (r, i) => `<div class="bar-row${r.highlight ? " hl" : ""}">
                 <span class="bar-label">${esc(r.label)}</span>
                 <span class="bar-track"><span class="bar" style="--w:${((r.value / max) * 100).toFixed(1)}%; --i:${i}"></span></span>
-                <span class="bar-value">${r.value.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}${esc(d.chart.unit || "")}</span>
+                <span class="bar-value">${r.value.toLocaleString(T.locale, { maximumFractionDigits: 2 })}${esc(d.chart.unit || "")}</span>
                 ${r.note ? `<span class="bar-note">${esc(r.note)}</span>` : ""}
               </div>`
             )
@@ -168,10 +242,10 @@
       .map((sec) => `<section class="d-section"><h3>${esc(sec.title)}</h3><ul>${sec.items.map((it) => `<li>${md(it)}</li>`).join("")}</ul></section>`)
       .join("");
     const gallery = d.gallery && d.gallery.length
-      ? `<section class="d-section"><h3>telas</h3><div class="gallery${d.galleryLayout === "desktop" ? " is-desktop" : ""}">${d.gallery
+      ? `<section class="d-section"><h3>${T.screens}</h3><div class="gallery${d.galleryLayout === "desktop" ? " is-desktop" : ""}">${d.gallery
           .map(
             (g) => `<figure class="${g.wide ? "wide" : ""}">
-              <button type="button" class="shot" data-src="${esc(g.src)}" aria-label="Ampliar: ${esc(g.caption || p.name)}">
+              <button type="button" class="shot" data-src="${esc(g.src)}" aria-label="${T.enlarge}: ${esc(g.caption || p.name)}">
                 <img src="${esc(g.src)}" alt="${esc(g.caption || p.name)}" loading="lazy" decoding="async" />
               </button>
               ${g.caption ? `<figcaption>${md(g.caption)}</figcaption>` : ""}
@@ -181,7 +255,7 @@
       : "";
 
     return `<header class="d-head">
-        <p class="d-kicker">projeto</p>
+        <p class="d-kicker">${T.kicker}</p>
         <h2 id="d-title">${esc(p.name)}</h2>
         ${tags(p.tags)}
         ${links.length ? `<div class="d-links">${links.join("")}</div>` : ""}
@@ -212,7 +286,7 @@
     overlay.setAttribute("data-koi-ignore", "");
     overlay.innerHTML = `<div class="d-backdrop"></div>
       <div class="d-panel" role="dialog" aria-modal="true" aria-labelledby="d-title">
-        <button type="button" class="d-close" aria-label="Fechar detalhes">${ICON_CLOSE}</button>
+        <button type="button" class="d-close" aria-label="${T.close}">${ICON_CLOSE}</button>
         <div class="d-scroll"><div class="d-content">${detailsHTML(p)}</div></div>
       </div>`;
     document.body.appendChild(overlay);
@@ -292,7 +366,7 @@
     const img = btn.querySelector("img");
     const viewer = document.createElement("div");
     viewer.className = "d-viewer";
-    viewer.innerHTML = `<img src="${btn.dataset.src}" alt="${esc(img.alt)}" /><span class="d-viewer-hint">clique ou Esc para voltar</span>`;
+    viewer.innerHTML = `<img src="${btn.dataset.src}" alt="${esc(img.alt)}" /><span class="d-viewer-hint">${T.back}</span>`;
     st.overlay.appendChild(viewer);
     const big = viewer.querySelector("img");
     const run = () => {
@@ -362,37 +436,43 @@
     },
     { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
   );
-  // O hero só aparece depois da frase digitada
-  document.querySelectorAll(".section .reveal").forEach((el) => revealObserver.observe(el));
-
   // Menu: marca a seção visível
-  const navLinks = [...document.querySelectorAll("#nav a")];
   const navObserver = new IntersectionObserver(
     (entries) => {
       for (const e of entries) {
         if (!e.isIntersecting) continue;
-        navLinks.forEach((a) => a.classList.toggle("active", a.dataset.target === e.target.id));
+        document.querySelectorAll("#nav a").forEach((a) => a.classList.toggle("active", a.dataset.target === e.target.id));
       }
     },
     { rootMargin: "-45% 0px -50% 0px" }
   );
-  document.querySelectorAll("#top, .section").forEach((s) => navObserver.observe(s));
+  function observe() {
+    // O hero só aparece depois da frase digitada
+    document.querySelectorAll(".section .reveal").forEach((el) => revealObserver.observe(el));
+    document.querySelectorAll("#top, .section").forEach((s) => navObserver.observe(s));
+  }
+  observe();
 
   // ── máquina de escrever ────────────────────────────────────────
   const tagline = $("#tagline");
-  const text = C.tagline.join("\n");
   const showHero = () => document.querySelectorAll("#hero-body .reveal").forEach((el) => el.classList.add("visible"));
-  if (reduceMotion) {
-    tagline.innerHTML = `${esc(text)}<span class="cursor"></span>`;
-    showHero();
-  } else {
+  let typing = 0; // ao trocar de idioma, a digitação anterior é abandonada
+  function typeTagline() {
+    const run = ++typing;
+    const text = C.tagline.join("\n");
+    if (reduceMotion) {
+      tagline.innerHTML = `${esc(text)}<span class="cursor"></span>`;
+      return showHero();
+    }
     let i = 0;
     (function type() {
+      if (run !== typing) return;
       tagline.innerHTML = `${esc(text.slice(0, i))}<span class="cursor"></span>`;
       if (i++ < text.length) setTimeout(type, text[i - 1] === "\n" ? 450 : 70 + Math.random() * 60);
-      else setTimeout(showHero, 250);
+      else setTimeout(() => run === typing && showHero(), 250);
     })();
   }
+  typeTagline();
 
   // ── tema ───────────────────────────────────────────────────────
   // Versão em JS puro do "Animated Theme Toggler" (shadcn/Magic UI): o novo tema
@@ -410,7 +490,7 @@
     // No escuro mostra o sol (clique = clarear); no claro, a lua
     const light = isLight();
     toggle.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${light ? ICONS.moon : ICONS.sun}</svg>`;
-    toggle.setAttribute("aria-label", light ? "Mudar para o tema escuro" : "Mudar para o tema claro");
+    toggle.setAttribute("aria-label", light ? T.toDark : T.toLight);
     if (animate && !calmMotion.matches) {
       toggle.firstChild.animate(
         [{ opacity: 0, transform: `scale(0.55) rotate(${light ? -25 : 25}deg)` }, { opacity: 1, transform: "none" }],
@@ -449,4 +529,65 @@
       root.classList.remove("theme-switching");
     }
   });
+
+  // ── troca de idioma ────────────────────────────────────────────
+  // Redesenha a página no outro idioma sem recarregar (as carpas continuam nadando)
+  // e mantém a pessoa no mesmo ponto da página.
+  const langBtn = $("#lang-toggle");
+  function renderLangButton() {
+    langBtn.innerHTML = ["pt", "en"]
+      .map((l) => `<span class="${l === lang ? "on" : ""}">${l}</span>`)
+      .join('<span class="sep" aria-hidden="true">/</span>');
+    langBtn.setAttribute("aria-label", T.langSwitch);
+    langBtn.title = T.langSwitch;
+  }
+
+  function setLang(next) {
+    lang = next;
+    C = CONTENT[lang];
+    T = UI[lang];
+    try { localStorage.setItem("lang", lang); } catch (e) {}
+
+    // Âncora: a primeira seção ainda visível no topo da tela
+    const blocks = [...document.querySelectorAll("#top, .section")];
+    const anchor = blocks.find((b) => b.getBoundingClientRect().bottom > 80) || blocks[0];
+    const anchorId = anchor.id, anchorTop = anchor.getBoundingClientRect().top;
+    const revealed = new Set(
+      [...document.querySelectorAll(".section")].filter((sec) => sec.querySelector(".reveal.visible")).map((sec) => sec.id)
+    );
+
+    render();
+    renderIcon(false);
+    renderLangButton();
+
+    // Seções que já tinham aparecido continuam visíveis; as da tela entram de novo com a animação
+    document.querySelectorAll(".section").forEach((sec) => {
+      if (!revealed.has(sec.id)) return;
+      const r = sec.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > innerHeight) sec.querySelectorAll(".reveal").forEach((el) => el.classList.add("visible"));
+    });
+    observe();
+    typeTagline();
+
+    const el = document.getElementById(anchorId);
+    if (el) window.scrollBy({ top: el.getBoundingClientRect().top - anchorTop, behavior: "instant" });
+  }
+
+  if (CONTENT.en) {
+    renderLangButton();
+    langBtn.addEventListener("click", () => {
+      const next = lang === "pt" ? "en" : "pt";
+      if (calm()) return setLang(next);
+      const main = $("#content"), foot = $("#footer");
+      main.classList.add("lang-out");
+      foot.classList.add("lang-out");
+      setTimeout(() => {
+        setLang(next);
+        main.classList.remove("lang-out");
+        foot.classList.remove("lang-out");
+      }, 220);
+    });
+  } else {
+    langBtn.remove();
+  }
 })();

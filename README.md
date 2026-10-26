@@ -8,6 +8,7 @@ Carpas em ASCII nadam ao fundo; ao rolar, as seções aparecem uma a uma.
 | arquivo      | o que é                                                        |
 |--------------|----------------------------------------------------------------|
 | `config.js`  | **todo o seu conteúdo** — é o único arquivo que você precisa editar |
+| `config.en.js` | os mesmos textos em inglês (botão `pt / en`) — ao mudar o `config.js`, atualize aqui também |
 | `index.html` | esqueleto da página (título e descrição para o Google/LinkedIn) |
 | `style.css`  | cores, fontes, layout (variáveis no topo)                      |
 | `pond.js`    | o lago: carpas, ondas, ração                                   |
