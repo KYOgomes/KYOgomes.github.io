@@ -192,16 +192,16 @@
 
       if (!this.target || !pellets.includes(this.target)) {
         this.target = nearestPellet(head.x, head.y, Math.max(W, H) * 0.45);
-        if (this.target) this.reactAt = Math.max(this.reactAt, time + rand(0.3, 0.9));
+        if (this.target) this.reactAt = Math.max(this.reactAt, time + rand(0.15, 0.5));
       }
       if (this.target && this.target.landed && time >= this.reactAt) {
         const dx = this.target.x - head.x, dy = this.target.y - head.y;
         const d = Math.hypot(dx, dy) || 1;
         sx += (dx / d) * 2.2; sy += (dy / d) * 2.2;
         // Arrive (Reynolds): dispara de longe e freia perto para não ficar rodeando o grão
-        const arrive = clamp(d / (CELL * 10), 0.35, 1);
-        maxTurn = 1.1 + (1 - arrive) * 1.6;
-        speedMul = 3.2 * arrive + 0.3; // aceleradinha: sai do passeio lento e vai até o grão
+        const arrive = clamp(d / (CELL * 13), 0.3, 1); // freia mais cedo, porque agora chega mais rápido
+        maxTurn = 1.4 + (1 - arrive) * 1.8;
+        speedMul = 5.5 * arrive + 0.4; // arrancada: sai do passeio lento e dispara até o grão
         urgent = true;
         if (d < this.len * 0.8) tight = 0.18; // perto do grão pode fazer a curva fechada para abocanhar
         if (d < this.maxW + CELL * 0.8) {
@@ -235,7 +235,7 @@
       const targetTurn = clamp(angleDiff(Math.atan2(sy, sx), this.angle) * 1.6, -cap, cap);
       this.turnRate += (targetTurn - this.turnRate) * Math.min(1, dt * (urgent ? 2.2 : 1.4));
       this.angle += this.turnRate * dt;
-      this.speed += (this.baseSpeed * speedMul - this.speed) * Math.min(1, dt * (urgent ? 1.8 : 0.7));
+      this.speed += (this.baseSpeed * speedMul - this.speed) * Math.min(1, dt * (urgent ? 3 : 0.7));
       const swim = this.speed / this.baseSpeed;
       this.tailPhase += dt * (1.3 + 0.9 * Math.min(swim, 2));
 
@@ -569,7 +569,7 @@
             if (d > range) continue;
             const cur = f.target && pellets.includes(f.target) ? Math.hypot(f.pts[0].x - f.target.x, f.pts[0].y - f.target.y) : Infinity;
             if (d < cur) {
-              if (cur === Infinity) f.reactAt = time + rand(0.2, 0.8); // cada uma percebe num momento diferente
+              if (cur === Infinity) f.reactAt = time + rand(0.1, 0.45); // cada uma percebe num momento diferente
               f.target = p;
             }
           }
